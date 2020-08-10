@@ -17,6 +17,7 @@ from picamera import PiCamera
 from time import sleep
 from datetime import datetime
 import subprocess
+import cv2, pandas 
 import os
 camera = PiCamera()
 import RPi.GPIO as GPIO # Import Raspberry Pi GPIO library

@@ -73,7 +73,7 @@ class PyMotive(object):
 					print("Motion detected.. Do something!!!")
 					currentTime = datetime.now()
 					timestampMessage = currentTime.strftime("%Y.%m.%d - %H:%M:%S")
-					self.filename = '/home/pi/images/image_%s.jpg' % timestampMessage
+					self.filename = '/home/pi/images/x00000001_%s.jpg' % timestampMessage
 					cv2.imwrite(filename=self.filename, img=frame2)
 					print('start')
 					p = subprocess.Popen(["scp", "-P 3231", self.filename, "rock@103.110.113.54:/var/www/html/gateway/robi/images2/"])

@@ -53,7 +53,7 @@ class PyMotive(object):
 
 	def looper(self):
 		#capture video stream from camera source. 0 refers to first camera, 1 referes to 2nd and so on.
-
+		command_retry_count = 0
 		try:
 			self.cap = cv2.VideoCapture(0)
 		except Exception as e:
@@ -107,7 +107,14 @@ class PyMotive(object):
 					cv2.imwrite(filename=self.filename, img=frame2)
 					print('start')
 					p = subprocess.Popen(["scp", "-P 3231", self.filename, "rock@103.110.113.54:/var/www/html/gateway/robi/images2/"])
-					sts = os.waitpid(p.pid, 0)
+					sts = os.waitpid(p.pid, os.WNOHANG|os.WUNTRACED)
+					while(sts == (0,0)):
+						sts = os.waitpid(p.pid, os.WNOHANG|os.WUNTRACED)
+						sleep(2)
+						command_retry_count += 1
+						if command_retry_count > 5:
+							p.terminate()
+							command_retry_count = 0
 					print('end')
 				
 			except Exception as e:

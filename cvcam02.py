@@ -109,8 +109,8 @@ class PyMotive(object):
 					p = subprocess.Popen(["scp", "-P 3231", self.filename, "rock@103.110.113.54:/var/www/html/gateway/robi/images2/"])
 					sts = os.waitpid(p.pid, os.WNOHANG|os.WUNTRACED)
 					while(sts == (0,0)):
-						sts = os.waitpid(p.pid, os.WNOHANG|os.WUNTRACED)
 						sleep(2)
+						sts = os.waitpid(p.pid, os.WNOHANG|os.WUNTRACED)
 						command_retry_count += 1
 						if command_retry_count > 5:
 							p.terminate()

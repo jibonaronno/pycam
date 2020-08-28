@@ -15,11 +15,19 @@ GPIO.setmode(GPIO.BOARD) # Use physical pin numberingGPIO.setup(10, GPIO.IN, pul
 ##GPIO.setup(10, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) # Set pin 10 to be a
 GPIO.setup(16, GPIO.OUT) # Set pin 10 to be a
 
+# pip install opencv-contrib-python==4.1.0.25
+
+# Following command is not mandatory if above command is applied
+# export LD_PRELOAD=/usr/lib/arm-linux-gnueabihf/libatomic.so.1
+
 class PyMotive(object):
 	def __init__(self):
-		modem.Dialin(modem)
-		sleep(5)
-		p = subprocess.Popen(["ip", "addr",  "show",  "dev", "ppp0"])
+		#modem.Dialin(modem)
+		#export LD_PRELOAD=/usr/lib/arm-linux-gnueabihf/libatomic.so.1
+		#p = subprocess.Popen(["export", "LD_PRELOAD=/usr/lib/arm-linux-gnueabihf/libatomic.so.1"])
+		#sts = os.waitpid(p.pid, 0)
+		#sleep(5)
+		p = subprocess.Popen(["ip", "addr",  "show",  "dev", "wlan0"])
 		sts = os.waitpid(p.pid, 0)
 		print('IP ADDRESS::' + str(sts))
 		
@@ -54,6 +62,7 @@ class PyMotive(object):
 	def looper(self):
 		#capture video stream from camera source. 0 refers to first camera, 1 referes to 2nd and so on.
 		command_retry_count = 0
+		combined_count = 0
 		try:
 			self.cap = cv2.VideoCapture(0)
 		except Exception as e:
@@ -103,10 +112,10 @@ class PyMotive(object):
 					print("Motion detected.. Do something!!!")
 					currentTime = datetime.now()
 					timestampMessage = currentTime.strftime("%Y.%m.%d-%H:%M:%S")
-					self.filename = '/home/pi/images/x00000001_%s.jpg' % timestampMessage
+					self.filename = '/home/pi/images/x00000002_%s.jpg' % timestampMessage
 					cv2.imwrite(filename=self.filename, img=frame2)
 					print('start')
-					p = subprocess.Popen(["scp", "-P 3231", self.filename, "rock@103.110.113.54:/var/www/html/gateway/robi/images2/"])
+					p = subprocess.Popen(["sudo", "scp", "-P 3231", self.filename, "rock@103.110.113.54:/var/www/html/gateway/robi/images2/"])
 					sts = os.waitpid(p.pid, os.WNOHANG|os.WUNTRACED)
 					command_retry_count = 0
 					while(sts == (0,0)):
@@ -116,6 +125,10 @@ class PyMotive(object):
 						if command_retry_count > 5:
 							p.terminate()
 							command_retry_count = 0
+							combined_count += 1
+							if combined_count == 3:
+								combined_count = 0
+								self.RestartModem()
 					print('end')
 				
 			except Exception as e:
